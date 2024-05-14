@@ -5,6 +5,7 @@ import { useState } from "react"
 import Image from "next/image"
 import { useSession } from "next-auth/react"
 import { usePathname, useRouter } from "next/navigation"
+import Link from "next/link"
 
 const PromptCard = ({post, handleTagClick, handleEdit, handleDelete}) => {
   const { data: session } = useSession()
@@ -22,6 +23,10 @@ const PromptCard = ({post, handleTagClick, handleEdit, handleDelete}) => {
   return (
     <div className="prompt_card">
       <div className="flex justify-between items-start gap-5">
+        <Link 
+          href={`/profile/${post.creator._id}`}
+          post={post}
+        >
         <div className="flex-1 flex justify-start items-center gap-3 cursor-pointer">
           <Image 
             src={post.creator.image}
@@ -40,6 +45,7 @@ const PromptCard = ({post, handleTagClick, handleEdit, handleDelete}) => {
             </p>
           </div>
         </div>
+        </Link>
 
         <div className="copy_btn" onClick={handleCopy}>
           <Image 
