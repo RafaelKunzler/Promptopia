@@ -1,34 +1,47 @@
 'use client'
 
-import { useState, useEffect } from "react"
-import { useParams } from "next/navigation"
+import { useState, useEffect, useCallback } from "react";
+import { useParams } from "next/navigation";
 
-import Profile from "@/components/Profile"
+import Profile from "@/components/Profile";
 
-const userProfile = () => {
-  const params = useParams()
+const UserProfile = () => {
+  const { userProfile } = useParams();
+  const [posts, setPosts] = useState([]);
+  const [error, setError] = useState(null);
 
-  const [posts, setPosts] = useState([])
+  const fetchPosts = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/users/${userProfile}/posts`);
+      if (!res.ok) {
+        throw new Error('Failed to fetch posts');
+      }
+      const data = await res.json();
+      setPosts(data);
+    } catch (err) {
+      setError(err.message);
+    }
+  }, [userProfile]);
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      const res = await fetch(`/api/users/${params.userProfile}/posts`)
-      const data = await res.json()
-
-      setPosts(data)
+    if (userProfile) {
+      fetchPosts();
     }
+  }, [userProfile, fetchPosts]);
 
-    fetchPosts()
-  }, [])
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
-  console.log(posts[0]?.creator.username);
+  const username = posts[0]?.creator.username || 'User';
+
   return (
-    <Profile 
-      name={posts[0]?.creator.username}
-      desc={`Welcome to ${posts[0]?.creator.username} personalized profile page`}
-      data={posts}      
+    <Profile
+      name={username}
+      desc={`Welcome to ${username} personalized profile page`}
+      data={posts}
     />
-  )
-}
+  );
+};
 
-export default userProfile
+export default UserProfile;
