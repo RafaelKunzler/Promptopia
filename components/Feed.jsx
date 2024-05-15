@@ -23,8 +23,9 @@ const Feed = () => {
   const [posts, setPosts] = useState([])
   
 
-  const handleSearchChange = async (e) => {     
-    setSearchText(e.target.value);       
+  const handleSearchChange = (e) => {     
+    setSearchText(e.target.value);  
+         
   }  
 
   const handleTagClick = (tag) => {
@@ -37,16 +38,18 @@ const Feed = () => {
       const res = await fetch('/api/prompt')
       const data = await res.json()
 
-      // filter prompts by search input
-      if(searchText){
-        const postsByTag = data.filter((post) => post.tag.includes(searchText))
-        const postsByCreator = data.filter((post) => post.creator.username.includes(searchText))
-
-        setPosts(postsByCreator.concat(postsByTag))
-        return posts
+      if (searchText) {
+        // filter posts by tags or username
+        const lowerCaseSearchText = searchText.toLowerCase();
+        const filteredPosts = data.filter((post) =>
+          post.tag.toLowerCase().includes(lowerCaseSearchText) ||
+          post.creator.username.toLowerCase().includes(lowerCaseSearchText)
+        );
+        setPosts(filteredPosts);
+      } else {
+        setPosts(data);
       }
       
-      setPosts(data)
     }
 
     fetchPosts()
